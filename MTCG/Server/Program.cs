@@ -4,31 +4,37 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-public class AsyncTcpServer
+class Program
 {
-    private TcpListener listener;
-
-    public AsyncTcpServer(int port)
+    static async Task Main(string[] args)
     {
-        listener = new TcpListener(IPAddress.Any, port);
-    }
+        TcpListener listener = new TcpListener(IPAddress.Any, 12345);
 
-    public async Task StartAsync()
-    {
-        listener.Start();
-        Console.WriteLine("Server started.");
-
-        while (true)
+        try
         {
-            TcpClient client = await listener.AcceptTcpClientAsync();
-            Console.WriteLine("Client connected.");
+            listener.Start();
+            Console.WriteLine("Server started.");
 
-            // Handle the client in another method asynchronously
-            HandleClientAsync(client);
+            while (true)
+            {
+                TcpClient client = await listener.AcceptTcpClientAsync();
+                Console.WriteLine("Client connected.");
+
+                // Handle the client in another method asynchronously
+                await HandleClientAsync(client);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error: " + e.Message);
+        }
+        finally
+        {
+            listener.Stop();
         }
     }
 
-    private async Task HandleClientAsync(TcpClient client)
+    private static async Task HandleClientAsync(TcpClient client)
     {
         try
         {
@@ -54,14 +60,5 @@ public class AsyncTcpServer
         {
             Console.WriteLine("Error: " + e.Message);
         }
-    }
-}
-
-class Program
-{
-    static async Task Main(string[] args)
-    {
-        AsyncTcpServer server = new AsyncTcpServer(12345);
-        await server.StartAsync();
     }
 }
