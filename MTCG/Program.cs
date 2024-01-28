@@ -10,6 +10,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        Console.WriteLine("Server start");
+
         // Initialize the GameManager using the singleton pattern
         GameManager gameManager = GameManager.Instance;
 
