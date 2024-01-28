@@ -9,8 +9,10 @@
 
   <ItemGroup>
     <Folder Include="Data Access\" />
-    <Folder Include="Controller\" />
-    <Folder Include="Services\" />
+    <Folder Include="Business Layer\" />
+    <Folder Include="Utilities\" />
+    <Folder Include="Server\Controllers\" />
+    <Folder Include="Server\Views\" />
   </ItemGroup>
 
 </Project>
