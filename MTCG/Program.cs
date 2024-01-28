@@ -20,7 +20,10 @@ class Program
             server.Start();
             Console.WriteLine("Server is listening on " + ipAddress + ":" + port);
 
-            Console.WriteLine("Server start");
+            Console.WriteLine("Server start. Bitte schreibe eine Nachricht!");
+
+            String Nachricht = Console.ReadLine();
+            Console.WriteLine("Deine Nachricht lautet <" + Nachricht + ">.");
 
             // Initialize the GameManager using the singleton pattern
             GameManager gameManager = GameManager.Instance;
