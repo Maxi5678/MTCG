@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Folder Include="Data Access\" />
-    <Folder Include="Business Layer\" />
     <Folder Include="Utilities\" />
     <Folder Include="Server\Controllers\" />
     <Folder Include="Server\Views\" />
