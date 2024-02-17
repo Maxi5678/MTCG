@@ -8,11 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="src\main\Logic\Interfaces\" />
-    <Folder Include="src\main\resources\sql\" />
-    <Folder Include="src\main\Server\DB\" />
-    <Folder Include="src\main\Server\Models\" />
-    <Folder Include="src\test\unit\" />
+    <Folder Include="Data Access\" />
+    <Folder Include="Utilities\" />
+    <Folder Include="Server\Controllers\" />
+    <Folder Include="Server\Views\" />
   </ItemGroup>
 
 </Project>
