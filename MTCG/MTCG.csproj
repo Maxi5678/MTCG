@@ -8,10 +8,31 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\main\api\**" />
+    <Compile Remove="src\main\application\**" />
+    <Compile Remove="src\main\domain\**" />
+    <Compile Remove="src\main\infrastructure\**" />
+    <Compile Remove="src\main\resources\**" />
+    <Compile Remove="src\main\utils\**" />
+    <EmbeddedResource Remove="src\main\api\**" />
+    <EmbeddedResource Remove="src\main\application\**" />
+    <EmbeddedResource Remove="src\main\domain\**" />
+    <EmbeddedResource Remove="src\main\infrastructure\**" />
+    <EmbeddedResource Remove="src\main\resources\**" />
+    <EmbeddedResource Remove="src\main\utils\**" />
+    <None Remove="src\main\api\**" />
+    <None Remove="src\main\application\**" />
+    <None Remove="src\main\domain\**" />
+    <None Remove="src\main\infrastructure\**" />
+    <None Remove="src\main\resources\**" />
+    <None Remove="src\main\utils\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="src\main\Logic\Interfaces\" />
     <Folder Include="src\main\Server\DB\" />
     <Folder Include="src\main\Server\Models\" />
-    <Folder Include="src\test\unit\" />
+    <Folder Include="src\test\" />
   </ItemGroup>
 
 </Project>
