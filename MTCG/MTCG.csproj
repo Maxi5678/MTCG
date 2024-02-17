@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
     <Compile Remove="src\main\api\**" />
     <Compile Remove="src\main\application\**" />
     <Compile Remove="src\main\domain\**" />
@@ -39,23 +38,6 @@
     <Folder Include="src\main\Logic\Interfaces\" />
     <Folder Include="src\main\Server\DB\" />
     <Folder Include="src\main\Server\Models\" />
-=======
-    <Folder Include="src\main\api\controllers\" />
-    <Folder Include="src\main\api\models\" />
-    <Folder Include="src\main\application\dto\" />
-    <Folder Include="src\main\application\services\" />
-    <Folder Include="src\main\domain\" />
-    <Folder Include="src\main\Logic\Interfaces\" />
-    <Folder Include="src\main\infrastructure\persistence\models\" />
-    <Folder Include="src\main\infrastructure\persistence\repositories\" />
-    <Folder Include="src\main\infrastructure\security\" />
-    <Folder Include="src\main\resources\sql\" />
-    <Folder Include="src\main\Server\DB\" />
-    <Folder Include="src\main\Server\Models\" />
-    <Folder Include="src\main\utils\" />
-    <Folder Include="src\test\integration\" />
-    <Folder Include="src\test\resources\" />
->>>>>>> TestBranch3
     <Folder Include="src\test\unit\" />
   </ItemGroup>
 
