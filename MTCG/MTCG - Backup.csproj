@@ -14,25 +14,31 @@
     <Compile Remove="src\main\infrastructure\**" />
     <Compile Remove="src\main\resources\**" />
     <Compile Remove="src\main\utils\**" />
+    <Compile Remove="src\test\integration\**" />
+    <Compile Remove="src\test\resources\**" />
     <EmbeddedResource Remove="src\main\api\**" />
     <EmbeddedResource Remove="src\main\application\**" />
     <EmbeddedResource Remove="src\main\domain\**" />
     <EmbeddedResource Remove="src\main\infrastructure\**" />
     <EmbeddedResource Remove="src\main\resources\**" />
     <EmbeddedResource Remove="src\main\utils\**" />
+    <EmbeddedResource Remove="src\test\integration\**" />
+    <EmbeddedResource Remove="src\test\resources\**" />
     <None Remove="src\main\api\**" />
     <None Remove="src\main\application\**" />
     <None Remove="src\main\domain\**" />
     <None Remove="src\main\infrastructure\**" />
     <None Remove="src\main\resources\**" />
     <None Remove="src\main\utils\**" />
+    <None Remove="src\test\integration\**" />
+    <None Remove="src\test\resources\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="src\main\Logic\Interfaces\" />
     <Folder Include="src\main\Server\DB\" />
     <Folder Include="src\main\Server\Models\" />
-    <Folder Include="src\test\" />
+    <Folder Include="src\test\unit\" />
   </ItemGroup>
 
 </Project>
