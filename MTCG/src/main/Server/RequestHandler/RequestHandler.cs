@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using MTCG.src.main.Server.RQ;
+using MTCG.src.main.Server.RP;
 
-namespace MTCG.src.main.Server.RequestHandler
+namespace MTCG.src.main.Server.RH
 {
     public class RequestHandler
     {
@@ -39,8 +41,8 @@ namespace MTCG.src.main.Server.RequestHandler
                     postContent.Append((char)streamReader.Read());
                 }
                 this.GenerateRequest(requestArray, postContent.ToString());
-                Response r = new Response(HTTPRequest, clientSocket);
-                r.HandleResponse();
+                //Response r = new Response(HTTPRequest, clientSocket);
+                //r.HandleResponse();
                 Console.WriteLine("Handle response.");
                 clientSocket.Close();
                 Console.WriteLine("Connection closed.");
@@ -56,16 +58,16 @@ namespace MTCG.src.main.Server.RequestHandler
             HTTPRequest = new Request();
             string[] line;
             line = requestString[0].Split(" ", 3);
-            HTTPRequest.SetHTTPMethod(line[0]);
-            HTTPRequest.SetRequestPath(line[1]);
-            HTTPRequest.SetRequestVersion(line[2]);
+            HTTPRequest.setHTTPMethod(line[0]);
+            HTTPRequest.setRequestPath(line[1]);
+            HTTPRequest.setRequestVersion(line[2]);
 
             for (int i = 1; i < requestString.Count; ++i)
             {
                 line = requestString[i].Split(new[] { ": " }, 2, StringSplitOptions.None);
                 HTTPRequest.AddHeader(line[0], line[1]);
             }
-            HTTPRequest.SetPostContent(postContent);
+            HTTPRequest.setPostContent(postContent);
         }
     }
 

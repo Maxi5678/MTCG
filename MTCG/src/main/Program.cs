@@ -6,7 +6,7 @@ namespace MTCG
     {
         public static void Main(string[] args)
         {
-            new Server().Start(); // Annahme, dass eine Start-Methode existiert
+            new Server().Start(); 
         }
     }
 }

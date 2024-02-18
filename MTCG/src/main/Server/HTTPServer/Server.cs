@@ -3,8 +3,10 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using MTCG.src.main.Server.RH;
 
-namespace MTCG.src.main.Server.HTTPServer 
+
+namespace MTCG.src.main.Server.HTTPServer
 {
     public class Server
     {
@@ -35,9 +37,10 @@ namespace MTCG.src.main.Server.HTTPServer
                     {
                         Socket clientSocket = serverSocket.AcceptSocket();
                         Console.WriteLine("Client connected: " + clientSocket.RemoteEndPoint);
+                        RequestHandler requestHandler = new RequestHandler();
 
                         // Handle client in a separate thread
-                        Thread clientThread = new Thread(() => HandleClient(clientSocket));
+                        Thread clientThread = new Thread(() => requestHandler.Handle(clientSocket));
                         clientThread.Start();
                     }
                     catch (Exception e)
@@ -56,4 +59,6 @@ namespace MTCG.src.main.Server.HTTPServer
             }
         }
     }
+}
+
 
