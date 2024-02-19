@@ -1,4 +1,4 @@
-﻿using MTCG.src.main.Server.HTTPServer;
+﻿using MTCG.Server;
 
 namespace MTCG
 {
@@ -6,7 +6,7 @@ namespace MTCG
     {
         public static void Main(string[] args)
         {
-            new Server().Start(); 
+            new HTTPServer().Start(); 
         }
     }
 }

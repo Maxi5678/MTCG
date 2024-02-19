@@ -3,21 +3,21 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using MTCG.src.main.Server.RH;
+using MTCG.Server.RH;
 
 
-namespace MTCG.src.main.Server.HTTPServer
+namespace MTCG.Server
 {
-    public class Server
+    public class HTTPServer
     {
         private int port = 10001;
 
-        public Server()
+        public HTTPServer()
         {
 
         }
 
-        public Server(int port)
+        public HTTPServer(int port)
         {
             this.port = port;
         }
@@ -30,6 +30,7 @@ namespace MTCG.src.main.Server.HTTPServer
                 serverSocket = new TcpListener(IPAddress.Any, port);
                 serverSocket.Start();
                 Console.WriteLine("Server is running on port: " + port);
+                Console.WriteLine("Waiting for Connections...");
 
                 while (true)
                 {

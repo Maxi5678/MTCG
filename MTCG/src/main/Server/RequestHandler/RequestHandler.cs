@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using MTCG.src.main.Server.RQ;
-using MTCG.src.main.Server.RP;
+using MTCG.Server.RQ;
+using MTCG.Server.RP;
+using System.Reflection.PortableExecutable;
 
-namespace MTCG.src.main.Server.RH
+namespace MTCG.Server.RH
 {
     public class RequestHandler
     {
-        private Request HTTPRequest;
         private Socket clientSocket;
+        public StreamWriter Writer;
+        public StreamReader Reader;
 
         public RequestHandler()
         {
@@ -19,55 +21,54 @@ namespace MTCG.src.main.Server.RH
 
         public void Handle(Socket incomingSocket)
         {
-            this.clientSocket = incomingSocket;
-            try
+            clientSocket = incomingSocket;
+            NetworkStream networkStream = new NetworkStream(incomingSocket);
+
+            using var Writer = new StreamWriter(networkStream) { AutoFlush = true };
+            using var Reader = new StreamReader(networkStream);
+
+            string? incomingRequest;
+            StringBuilder requestBuilder = new StringBuilder();
+
+            Response responses = new Response();
+            Request request = new Request();
+
+            while ((incomingRequest = Reader.ReadLine()) != null)
             {
-                List<string> requestArray = new List<string>();
-                NetworkStream networkStream = new NetworkStream(clientSocket);
-                StreamReader streamReader = new StreamReader(networkStream);
-                string requestLine = streamReader.ReadLine();
+                Console.WriteLine(incomingRequest);
+                requestBuilder.AppendLine(incomingRequest);
 
-                Console.WriteLine("Getting Request.");
-                while (!string.IsNullOrEmpty(requestLine))
-                {
-                    requestArray.Add(requestLine);
-                    requestLine = streamReader.ReadLine();
-                }
-
-                Console.WriteLine("Building POST Content");
-                StringBuilder postContent = new StringBuilder();
-                while (streamReader.Peek() >= 0) // Checks if there is any more data to read
-                {
-                    postContent.Append((char)streamReader.Read());
-                }
-                this.GenerateRequest(requestArray, postContent.ToString());
-                //Response r = new Response(HTTPRequest, clientSocket);
-                //r.HandleResponse();
-                Console.WriteLine("Handle response.");
-                clientSocket.Close();
-                Console.WriteLine("Connection closed.");
+                if (string.IsNullOrEmpty(incomingRequest))
+                    break;
             }
-            catch (IOException e)
+
+            string requestText = requestBuilder.ToString();
+
+            if (requestText.Contains("GET"))
             {
-                Console.Error.WriteLine("IOException during Request Handling." + e.Message);
+                request.GetHandler(incomingSocket, Reader, Writer, requestText);
             }
-        }
-
-        public void GenerateRequest(List<string> requestString, string postContent)
-        {
-            HTTPRequest = new Request();
-            string[] line;
-            line = requestString[0].Split(" ", 3);
-            HTTPRequest.setHTTPMethod(line[0]);
-            HTTPRequest.setRequestPath(line[1]);
-            HTTPRequest.setRequestVersion(line[2]);
-
-            for (int i = 1; i < requestString.Count; ++i)
+            else if (requestText.Contains("POST"))
             {
-                line = requestString[i].Split(new[] { ": " }, 2, StringSplitOptions.None);
-                HTTPRequest.AddHeader(line[0], line[1]);
+                request.PostHandler(incomingSocket, Reader, Writer, requestText);
             }
-            HTTPRequest.setPostContent(postContent);
+            else if (requestText.Contains("PUT"))
+            {
+                request.PutHandler(incomingSocket, Reader, Writer, requestText);
+            }
+            else if (requestText.Contains("DELETE"))
+            {
+                request.DeleteHandler(incomingSocket, Reader, Writer, requestText);
+            }
+            else
+            {
+                responses.Respond("Wrong Command.", "404 Not found.");
+            }
+
+            incomingSocket.Shutdown(SocketShutdown.Both);
+            incomingSocket.Close();
+
+            Console.WriteLine("Client disconnected");
         }
     }
 
