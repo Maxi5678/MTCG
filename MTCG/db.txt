@@ -1,0 +1,91 @@
+docker run -d --rm --name postgresdb -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=1234 -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres
+
+docker start postgresdb
+
+docker exec -it postgresdb psql -U admin
+
+CREATE DATABASE mydb;
+
+\c mydb
+
+CREATE TABLE IF NOT EXISTS users(
+	id SERIAL PRIMARY KEY, 
+	username VARCHAR(50) UNIQUE NOT NULL,
+	password VARCHAR(255) NOT NULL, 
+	currency INT DEFAULT 20, 
+	elo INT DEFAULT 100, 
+	wins INT DEFAULT 0, 
+	losses INT DEFAULT 0
+);
+
+CREATE TABLE cards (
+    cid SERIAL PRIMARY KEY,
+    name VARCHAR(32) NOT NULL,
+    damage DOUBLE PRECISION NOT NULL,
+    cardType VARCHAR(255),
+    element VARCHAR(255),
+    special INT
+);
+
+CREATE TABLE packages (
+    pid SERIAL PRIMARY KEY
+);
+
+CREATE TABLE packageCards (
+    pid INT NOT NULL,
+    cid INT NOT NULL,
+    FOREIGN KEY (pid) REFERENCES packages(pid),
+    FOREIGN KEY (cid) REFERENCES cards(cid)
+);
+
+CREATE TABLE stacks (
+    sid SERIAL PRIMARY KEY,
+    uid INT NOT NULL,
+    FOREIGN KEY (uid) REFERENCES users(id)
+);
+
+CREATE TABLE stackCards (
+    sid INT NOT NULL,
+    cid INT NOT NULL,
+    FOREIGN KEY (sid) REFERENCES stacks(sid),
+    FOREIGN KEY (cid) REFERENCES cards(cid)
+);
+
+CREATE TABLE deck (
+    did SERIAL PRIMARY KEY,
+    username_referenz INT NOT NULL,
+    FOREIGN KEY (username_referenz) REFERENCES users(id)
+);
+
+CREATE TABLE deckCards (
+    did INT NOT NULL,
+    cid INT NOT NULL,
+    FOREIGN KEY (did) REFERENCES deck(did),
+    FOREIGN KEY (cid) REFERENCES cards(cid)
+);
+
+CREATE TABLE UserCards (
+    Ucid SERIAL PRIMARY KEY,
+    uid INT NOT NULL,
+    cid INT NOT NULL,
+    in_deck BOOLEAN,
+    FOREIGN KEY (uid) REFERENCES users(id),
+    FOREIGN KEY (cid) REFERENCES cards(cid)
+);
+
+CREATE TABLE Battle (
+    BattleID SERIAL PRIMARY KEY,
+    ChallengerUserID INTEGER NOT NULL,
+    OpponentUserID INTEGER NOT NULL,
+    WinnerUserID INTEGER NULL,
+    BattleLog TEXT,
+    CONSTRAINT fk_challenger
+        FOREIGN KEY (ChallengerUserID)
+        REFERENCES users(id),
+    CONSTRAINT fk_opponent
+        FOREIGN KEY (OpponentUserID)
+        REFERENCES users(id),
+    CONSTRAINT fk_winner
+        FOREIGN KEY (WinnerUserID)
+        REFERENCES users(id)
+);

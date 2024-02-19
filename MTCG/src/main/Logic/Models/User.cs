@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
-public class User
+namespace Models
 {
-    public string Username { get; private set; }
-    public string Password { get; private set; } // Consider encryption for real-world applications
-    public int Coins { get; set; }
-    public List<Card> Stack { get; private set; }
-    public List<Card> Deck { get; private set; }
-
-    public User(string username, string password)
+    public class User
     {
-        Username = username;
-        Password = password;
-        Coins = 20; // Starting coins
-        Stack = new List<Card>();
-        Deck = new List<Card>();
-    }
+        public int id;
+        public string username;
+        public string password;
+        public List<Card> cardStack = new List<Card>();
+        public Deck cardDeck = new Deck(new List<Card>());
+        public int currency = 20;
+        public int Elo = 100;
+        public string authToken;
+        public int score;
+        public int Wins;
+        public int Losses;
 
-    // Methods for managing cards, buying packages, etc.
+
+    }
 }
 

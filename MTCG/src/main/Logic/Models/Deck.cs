@@ -4,35 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Deck
+namespace Models
 {
-    private List<Card> cards;
-
-    public Deck()
+    public class Deck
     {
-        cards = new List<Card>();
-    }
+        private List<Card> cards;
 
-    public void AddCard(Card card)
-    {
-        if (cards.Count < 4) // Begrenzung auf 4 Karten im Deck
+        public Deck()
         {
-            cards.Add(card);
+            cards = new List<Card>();
         }
-        else
+
+        public void AddCard(Card card)
         {
-            throw new InvalidOperationException("Das Deck ist bereits voll.");
+            if (cards.Count < 4) // Begrenzung auf 4 Karten im Deck
+            {
+                cards.Add(card);
+            }
+            else
+            {
+                throw new InvalidOperationException("Das Deck ist bereits voll.");
+            }
         }
-    }
 
-    public void RemoveCard(Card card)
-    {
-        cards.Remove(card);
-    }
+        public void RemoveCard(Card card)
+        {
+            cards.Remove(card);
+        }
 
-    public List<Card> GetCards()
-    {
-        return cards;
+        public List<Card> GetCards()
+        {
+            return cards;
+        }
     }
 }
-
