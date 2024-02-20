@@ -4,24 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public abstract class Card
+namespace Models
 {
-    public string Name { get; private set; }
-    public int Damage { get; private set; }
-    public ElementType Element { get; private set; }
-
-    protected Card(string name, int damage, ElementType element)
+    public abstract class Card
     {
-        Name = name;
-        Damage = damage;
-        Element = element;
-    }
-}
+        public string Name { get; private set; }
+        public int Damage { get; private set; }
+        public ElementType Element { get; private set; }
 
-public enum ElementType
-{
-    Fire,
-    Water,
-    Normal
+        protected Card(string name, int damage, ElementType element)
+        {
+            Name = name;
+            Damage = damage;
+            Element = element;
+        }
+    }
+
+    public enum ElementType
+    {
+        Fire,
+        Water,
+        Normal
+    }
 }
 
