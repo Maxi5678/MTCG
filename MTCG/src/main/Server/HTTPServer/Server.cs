@@ -38,7 +38,7 @@ namespace MTCG.Server
                     {
                         Socket clientSocket = serverSocket.AcceptSocket();
                         Console.WriteLine("Client connected: " + clientSocket.RemoteEndPoint);
-                        RequestHandler requestHandler = new RequestHandler();
+                        RequestHandler requestHandler = new RequestHandler(clientSocket);
 
                         // Handle client in a separate thread
                         Thread clientThread = new Thread(() => requestHandler.Handle(clientSocket));

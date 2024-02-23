@@ -1,21 +1,19 @@
-docker run -d --rm --name postgresdb -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=1234 -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres
+docker run -d --name postgresdb -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=1234 -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres
 
 docker start postgresdb
 
 docker exec -it postgresdb psql -U admin
 
-CREATE DATABASE mydb;
+CREATE DATABASE mtcgdb;
 
-\c mydb
+\c mtcgdb
 
 CREATE TABLE IF NOT EXISTS users(
 	id SERIAL PRIMARY KEY, 
 	username VARCHAR(50) UNIQUE NOT NULL,
 	password VARCHAR(255) NOT NULL, 
 	currency INT DEFAULT 20, 
-	elo INT DEFAULT 100, 
-	wins INT DEFAULT 0, 
-	losses INT DEFAULT 0
+	elo INT DEFAULT 100 
 );
 
 CREATE TABLE cards (
@@ -23,8 +21,7 @@ CREATE TABLE cards (
     name VARCHAR(32) NOT NULL,
     damage DOUBLE PRECISION NOT NULL,
     cardType VARCHAR(255),
-    element VARCHAR(255),
-    special INT
+    element VARCHAR(255)
 );
 
 CREATE TABLE packages (
@@ -78,7 +75,6 @@ CREATE TABLE Battle (
     ChallengerUserID INTEGER NOT NULL,
     OpponentUserID INTEGER NOT NULL,
     WinnerUserID INTEGER NULL,
-    BattleLog TEXT,
     CONSTRAINT fk_challenger
         FOREIGN KEY (ChallengerUserID)
         REFERENCES users(id),

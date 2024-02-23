@@ -16,12 +16,31 @@ namespace Models
         public List<Card> cardStack = new List<Card>();
         public Deck cardDeck = new Deck(new List<Card>());
         public int currency = 20;
-        public int Elo = 100;
-        public string authToken;
-        public int score;
-        public int Wins;
-        public int Losses;
+        public int elo = 100;
 
+        public User(int id, String username, String password, List<Card> cardStack, List<Card> cardDeck, int currency)
+        {
+            this.id = id;
+            this.username = username;
+            this.password = password;
+            this.cardStack = cardStack;
+            this.cardDeck = new Deck(cardDeck);
+            this.currency = currency;
+        }
+
+        public User(int id, String username, String password, int currency)
+        {
+            this.id = id;
+            this.username = username;
+            this.password = password;
+            this.currency = currency;
+        }
+
+        public User(String username, String password)
+        {
+            this.username = username;
+            this.password = password;
+        }
 
     }
 }

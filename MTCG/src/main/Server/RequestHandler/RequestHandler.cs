@@ -11,17 +11,21 @@ namespace MTCG.Server.RH
 {
     public class RequestHandler
     {
-        private Socket clientSocket;
         public StreamWriter Writer;
         public StreamReader Reader;
+        private Socket clientSocket;
+        Request request;
+        Response responses;
 
-        public RequestHandler()
+        public RequestHandler(Socket incomingSocket)
         {
+            this.clientSocket = incomingSocket;
+            this.responses = new Response(clientSocket);
+            this.request = new Request(clientSocket);
         }
 
         public void Handle(Socket incomingSocket)
         {
-            clientSocket = incomingSocket;
             NetworkStream networkStream = new NetworkStream(incomingSocket);
 
             using var Writer = new StreamWriter(networkStream) { AutoFlush = true };
@@ -30,8 +34,7 @@ namespace MTCG.Server.RH
             string? incomingRequest;
             StringBuilder requestBuilder = new StringBuilder();
 
-            Response responses = new Response();
-            Request request = new Request();
+            
 
             while ((incomingRequest = Reader.ReadLine()) != null)
             {

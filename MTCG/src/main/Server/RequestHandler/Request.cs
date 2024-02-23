@@ -7,6 +7,11 @@ using System.Reflection.PortableExecutable;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using Models;
+using MTCG.DB;
 
 namespace MTCG.Server.RQ
 {
@@ -17,9 +22,13 @@ namespace MTCG.Server.RQ
         private Socket clientSocket;
         public StreamWriter Writer;
         public StreamReader Reader;
-        Response responses = new Response();
-        public Request()
+        Response responses;
+        dbCommunication dbCommunication;
+        public Request(Socket incomingSocket)
         {
+            this.clientSocket = incomingSocket;
+            this.responses = new Response(clientSocket);
+            dbCommunication = new dbCommunication(clientSocket);
         }
         public void GetHandler(Socket incomingSocket, StreamReader Reader, StreamWriter Writer, string requestText)
         {
@@ -77,8 +86,7 @@ namespace MTCG.Server.RQ
                 switch (path[1])
                 {
                     case "/users":
-                        Data = GetData();
-
+                        CreateUser();
                         break;
                     case "/sessions":
                         Data = GetData();
@@ -159,6 +167,36 @@ namespace MTCG.Server.RQ
             char[] clientBuffer = new char[clientSocket.ReceiveBufferSize];
             int bytesRead = Reader.Read(clientBuffer, 0, clientSocket.ReceiveBufferSize);
             return new string(clientBuffer, 0, bytesRead);
+        }
+
+        private void CreateUser()
+        {
+            try
+            {
+                string data = GetData();
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var userData = JsonSerializer.Deserialize<Dictionary<string, string>>(data, options);
+
+                if (userData != null && userData.TryGetValue("Username", out var username) && userData.TryGetValue("Password", out var password))
+                {
+                    User createUser = new User(username, password);
+
+                    
+                    if (dbCommunication.InsertUser(createUser)) 
+                    {
+                        responses.Respond($"Successfully added User: {username}\nWith password: {password}", "201 Created");
+                    }
+                }
+                else
+                {
+                    responses.Respond("Invalid user data", "400 Bad Request");
+                }
+            }
+            catch (Exception e)
+            {
+                responses.Respond("Error during User Creation", "500 Internal Server Error");
+                Console.Error.WriteLine($"Exception occurred in CreateUser: {e}");
+            }
         }
     }
 }
