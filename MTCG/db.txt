@@ -45,22 +45,22 @@ CREATE TABLE stacks (
 
 CREATE TABLE stackCards (
     sid INT NOT NULL,
-    cid varchar(128) NOT NULL,
+    cardId varchar(128) NOT NULL,
     FOREIGN KEY (sid) REFERENCES stacks(sid),
     FOREIGN KEY (cid) REFERENCES cards(cid)
 );
 
-CREATE TABLE deck (
+CREATE TABLE decks (
     did SERIAL PRIMARY KEY,
-    username_referenz INT NOT NULL,
-    FOREIGN KEY (username_referenz) REFERENCES users(id)
+    username_referenz VARCHAR(50) NOT NULL,
+    FOREIGN KEY (username_referenz) REFERENCES users(username)
 );
 
 CREATE TABLE deckCards (
     did INT NOT NULL,
-    cid varchar(128) NOT NULL,
-    FOREIGN KEY (did) REFERENCES deck(did),
-    FOREIGN KEY (cid) REFERENCES cards(cid)
+    cardId varchar(128) NOT NULL,
+    FOREIGN KEY (did) REFERENCES decks(did),
+    FOREIGN KEY (cardId) REFERENCES cards(cid)
 );
 
 CREATE TABLE Battle (
@@ -78,3 +78,5 @@ CREATE TABLE Battle (
         FOREIGN KEY (WinnerUserID)
         REFERENCES users(id)
 );
+
+DELETE FROM packageCards; DELETE FROM packages; DELETE FROM deckCards; DELETE FROM decks; DELETE FROM stackCards; DELETE FROM stacks; DELETE FROM users; DELETE FROM cards;

@@ -1,17 +1,12 @@
 ﻿using MTCG.Server.RP;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Net.Sockets;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 using Models;
 using MTCG.DB;
+using System.Xml;
+using System.Net.Http.Json;
+using System.Text;
 
 namespace MTCG.Server.RQ
 {
@@ -45,26 +40,30 @@ namespace MTCG.Server.RQ
                 switch (path[1])
                 {
                     case "/cards":
-
+                        showStack();
                         break;
                     case "/stats":
-
+                        string jsonResponse = "{\"message\": \"Service not implemented.\"}";
+                        responses.Respond(jsonResponse, "501 Not Implemented");
                         break;
                     case "/scoreboard":
-                        
+                        string jsonResponse1 = "{\"message\": \"Service not implemented.\"}";
+                        responses.Respond(jsonResponse1, "501 Not Implemented");
                         break;
                     default:
                         if (path[1].Contains("/deck"))
                         {
-                            
+                            showDeck();
                         }
                         else if(Regex.IsMatch(path[1], @"/users/[a-zA-Z]*"))
                         {
-
+                            string jsonResponse2 = "{\"message\": \"Service not implemented.\"}";
+                            responses.Respond(jsonResponse2, "501 Not Implemented");
                         }
                         else
                         {
-                            responses.Respond("Service not implemented.", "501 Not Implemented");
+                            string jsonResponse3 = "{\"message\": \"Service not implemented.\"}";
+                            responses.Respond(jsonResponse3, "501 Not Implemented");
                         }
                         break;
                 }
@@ -100,11 +99,9 @@ namespace MTCG.Server.RQ
                     case "/battles":
 
                         break;
-                    case "/logout":
-
-                        break;
                     default:
-                        responses.Respond("Service not implemented.", "501 Not Implemented");
+                        string jsonResponse = "{\"message\": \"Service not implemented.\"}";
+                        responses.Respond(jsonResponse, "501 Not Implemented");
                         break;
                 }
             }
@@ -122,16 +119,17 @@ namespace MTCG.Server.RQ
 
             if (path[1] == "/deck")
             {
-
-
+                configureDeck();
             }
-            else if (Regex.IsMatch(path[1], @"/users/[a-zA-Z]*")) { 
-
-                    
+            else if (Regex.IsMatch(path[1], @"/users/[a-zA-Z]*")) 
+            {
+                string jsonResponse1 = "{\"message\": \"Service not implemented.\"}";
+                responses.Respond(jsonResponse1, "501 Not Implemented");
             }
             else
             {
-                responses.Respond("Service not implemented.", "501 Not Implemented");
+                string jsonResponse = "{\"message\": \"Service not implemented.\"}";
+                responses.Respond(jsonResponse, "501 Not Implemented");
             }
         }
 
@@ -147,15 +145,18 @@ namespace MTCG.Server.RQ
 
             if(Regex.IsMatch(path[1], @"/users/[a-zA-Z]*"))
             {
-                responses.Respond("Deleted Users", "200 OK");
+                string jsonResponse = "{\"message\": \"Deleted Users.\"}";
+                responses.Respond(jsonResponse, "200 OK");
             }
             else if(Regex.IsMatch(path[1], @"/tradings/[a-zA-Z0-9-]*"))
             {
-                responses.Respond("Deleted Trading", "200 OK");
+                string jsonResponse = "{\"message\": \"Deleted Trading.\"}";
+                responses.Respond(jsonResponse, "200 OK");
             }
             else
             {
-                responses.Respond("Service not implemented.", "501 Not Implemented");
+                string jsonResponse = "{\"message\": \"Service not implemented.\"}";
+                responses.Respond(jsonResponse, "501 Not Implemented");
             }
         }
 
@@ -186,12 +187,14 @@ namespace MTCG.Server.RQ
                 }
                 else
                 {
-                    responses.Respond("Invalid user data", "400 Bad Request");
+                    string jsonResponse = "{\"message\": \"Invalid user data.\"}";
+                    responses.Respond(jsonResponse, "400 Bad Request");
                 }
             }
             catch (Exception e)
             {
-                responses.Respond("Error during User Creation", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"User with same username already registered.\"}";
+                responses.Respond(jsonResponse, "409 Already Exists");
                 Console.Error.WriteLine($"Exception occurred in CreateUser: {e}");
             }
         }
@@ -209,17 +212,21 @@ namespace MTCG.Server.RQ
                     if (dbCommunication.getUser(user))
                     {
                         dbCommunication.createStack(username);
-                        responses.Respond("Successfully logged in", "200 OK");
+                        dbCommunication.createDeck(username);
+                        string jsonResponse = "{\"message\": \"Successfully logged in.\"}";
+                        responses.Respond(jsonResponse, "200 Success");
                     }
                 }
                 else
                 {
-                    responses.Respond("Invalid user data", "400 Bad Request");
+                    string jsonResponse = "{\"message\": \"Invalid user data.\"}";
+                    responses.Respond(jsonResponse, "400 Bad Request");
                 }
             }
             catch (Exception e)
             {
-                responses.Respond("Error during User Login", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during User Login.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 Console.Error.WriteLine($"Exception occurred in CreateUser: {e}");
             }
         }
@@ -244,16 +251,19 @@ namespace MTCG.Server.RQ
                         Card card = new Card(CardData.Id, CardData.Name, CardData.Damage);
                         dbCommunication.insertPackageCards(card, pid);
                     }
-                    responses.Respond("Successfully created Package", "201 Created");
+                    string jsonResponse = "{\"message\": \"Successfully created Package.\"}";
+                    responses.Respond(jsonResponse, "201 Created");
                 }
                 else
                 {
-                    responses.Respond("Invalid card data", "400 Bad Request");
+                    string jsonResponse = "{\"message\": \"At least one card in the packages already exists.\"}";
+                    responses.Respond(jsonResponse, "409 Already Exists");
                 }
             }
             catch (Exception e)
             {
-                responses.Respond("Error during Package creation", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Package creation.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 Console.Error.WriteLine($"Exception occurred in CreateUser: {e}");
             }
         }
@@ -274,10 +284,11 @@ namespace MTCG.Server.RQ
                 int packageId = dbCommunication.getPackage();
                 if (packageId == 0) 
                 {
-                    responses.Respond("No more Packeges", "404 Not Found");
+                    string jsonResponse = "{\"message\": \"No card package available for buying.\"}";
+                    responses.Respond(jsonResponse, "404 Not Found");
                     return;
                 }
-                List<string> cardIds= dbCommunication.fillStack(packageId);
+                List<string> cardIds= dbCommunication.getCardsFromPackage(packageId);
                 int stackId = dbCommunication.getStackId(user.username);
 
 
@@ -285,9 +296,10 @@ namespace MTCG.Server.RQ
                 {
                     foreach (var cid in cardIds)
                     {
-                        dbCommunication.addCards(cid, stackId);
+                        dbCommunication.fillStack(cid, stackId);
                     }
-                    responses.Respond("Successfully aquired Package", "201 Created");
+                    string jsonResponse = "{\"message\": \"A package has been successfully bought.\"}";
+                    responses.Respond(jsonResponse, "200 Success");
                     dbCommunication.setCurrency(user.id);
                     dbCommunication.deletePackage(packageId);
                 }
@@ -298,8 +310,161 @@ namespace MTCG.Server.RQ
             }
             else
             {
-                responses.Respond("Not enough Coins", "400 Error");
+                string jsonResponse = "{\"message\": \"Not enough money for buying a card package.\"}";
+                responses.Respond(jsonResponse, "403 Forbidden ");
                 return;
+            }
+        }
+
+        private void showStack()
+        {
+            var requestLines = requestText.Split("\r\n");
+            var path = requestLines.Skip(4).FirstOrDefault()?.Split(' ') ?? Array.Empty<string>();
+            if (path.Length == 1)
+            {
+                string jsonResponse = "{\"message\": \"Access token is missing or invalid.\"}";
+                responses.Respond(jsonResponse, "401 Unauthorized");
+                return;
+            }
+            else if (!dbCommunication.validateUser(path[2]))
+            {
+                return;
+            }
+
+            User user = dbCommunication.getUserData(path[2]);
+            int stackId = dbCommunication.getStackId(user.username);
+
+            if (stackId > 0)
+            {
+                List<Card> cardList = dbCommunication.printStack(stackId);
+                if(cardList.Count == 0) 
+                {
+                    string jsonResponse = "{\"message\": \"The request was fine, but the user doesn't have any cards.\"}";
+                    responses.Respond(jsonResponse, "204 No Content ");
+                    return;
+                }
+                StringBuilder jsonBuilder = new StringBuilder();
+
+                jsonBuilder.Append("\r\n[");
+                for (int i = 0; i < cardList.Count; i++)
+                {
+                    var card = cardList[i];
+                    jsonBuilder.Append("{");
+                    jsonBuilder.AppendFormat("\"CardId\": \"{0}\", \"Name\": \"{1}\", \"Damage\": {2}, \"Type\": \"{3}\", \"Element\": \"{4}\"", card.cid, card.name, card.damage, card.cardType, card.element);
+                    jsonBuilder.Append("}");
+                    if (i < cardList.Count - 1)
+                    {
+                        jsonBuilder.Append(",\r\n ");
+                    }
+                }
+                jsonBuilder.Append("]\r\n");
+
+                responses.Respond($"The User: {user.username} has following Cards:"+jsonBuilder.ToString(), "200 Success");
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        public void showDeck()
+        {
+            var requestLines = requestText.Split("\r\n");
+            var path = requestLines.Skip(4).FirstOrDefault()?.Split(' ') ?? Array.Empty<string>();
+            if (path.Length == 1)
+            {
+                string jsonResponse = "{\"message\": \"Access token is missing or invalid.\"}";
+                responses.Respond(jsonResponse, "401 Unauthorized");
+                return;
+            }
+            else if (!dbCommunication.validateUser(path[2]))
+            {
+                return;
+            }
+
+            User user = dbCommunication.getUserData(path[2]);
+            int deckId = dbCommunication.getDeckId(user.username);
+
+            if(deckId > 0)
+            {
+                List<Card> cardList = dbCommunication.printDeck(deckId);
+                if (cardList.Count == 0)
+                {
+                    string jsonResponse = "{\"message\": \"The request was fine, but the deck doesn't have any cards.\"}";
+                    responses.Respond(jsonResponse, "204 No Content ");
+                    return;
+                }
+                StringBuilder jsonBuilder = new StringBuilder();
+
+                jsonBuilder.Append("\r\n[");
+                for (int i = 0; i < cardList.Count; i++)
+                {
+                    var card = cardList[i];
+                    jsonBuilder.Append("{");
+                    jsonBuilder.AppendFormat("\"CardId\": \"{0}\", \"Name\": \"{1}\", \"Damage\": {2}, \"Type\": \"{3}\", \"Element\": \"{4}\"", card.cid, card.name, card.damage, card.cardType, card.element);
+                    jsonBuilder.Append("}");
+                    if (i < cardList.Count - 1)
+                    {
+                        jsonBuilder.Append(",\r\n ");
+                    }
+                }
+                jsonBuilder.Append("]\r\n");
+
+                responses.Respond($"The User: {user.username} has following Cards in his Deck:" + jsonBuilder.ToString(), "200 Success");
+            }
+            else
+            {
+                return;
+            }
+
+        }
+
+        public void configureDeck()
+        {
+            var requestLines = requestText.Split("\r\n");
+            var path = requestLines.Skip(5).FirstOrDefault()?.Split(' ') ?? Array.Empty<string>();
+            if (path.Length == 1)
+            {
+                string jsonResponse = "{\"message\": \"Access token is missing or invalid.\"}";
+                responses.Respond(jsonResponse, "401 Unauthorized");
+                return;
+            }
+            else if (!dbCommunication.validateUser(path[2]))
+            {
+                return;
+            }
+
+            string data = GetData();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var userCards = JsonSerializer.Deserialize<List<string>>(data, options);
+            User user = dbCommunication.getUserData(path[2]);
+            int stackId = dbCommunication.getStackId(user.username);
+
+
+            if (userCards != null && userCards.Count == 4)
+            {
+                foreach (var CardId in userCards)
+                {
+                    Card card = new Card(CardId);
+                    if (dbCommunication.checkStack(stackId, card))
+                    {
+                        int deckId = dbCommunication.getDeckId(user.username);
+                        dbCommunication.insertIntoDeck(deckId, card);
+                    }
+                    else
+                    {
+                        string jsonResponse_ = "{\"message\": \"At least one of the provided cards does not belong to the user or is not available.\"}";
+                        responses.Respond(jsonResponse_, "403 Forbidden");
+                        return;
+                    }
+                }
+                string jsonResponse = "{\"message\": \"Successfully created Package.\"}";
+                responses.Respond(jsonResponse, "201 Created");
+            }
+            else
+            {
+                string jsonResponse = "{\"message\": \"The provided deck did not include the required amount of cards.\"}";
+                responses.Respond(jsonResponse, "400 Error");
             }
         }
 
@@ -324,13 +489,15 @@ namespace MTCG.Server.RQ
                 }
                 else
                 {
-                    responses.Respond("Invalid Token.", "401 Unauthorized");
+                    string jsonResponse = "{\"message\": \"Provided user is not admin.\"}";
+                    responses.Respond(jsonResponse, "403 Forbidden");
                     return false;
                 }
             }
             catch (Exception e)
             {
-                responses.Respond("Error during admin validation.", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during admin validation.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 Console.Error.WriteLine($"Exception occurred in validateAdmin: {e}");
                 return false;
             }

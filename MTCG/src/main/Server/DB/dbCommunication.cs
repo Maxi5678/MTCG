@@ -67,7 +67,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return false;
             }
 
@@ -92,14 +93,16 @@ namespace MTCG.DB
                 }
                 else
                 {
-                    responses.Respond("Error during User creation", "500 Internal Server Error");
+                    string jsonResponse = "{\"message\": \"User with same username already registered.\"}";
+                    responses.Respond(jsonResponse, "409 Already Exists");
                     Disconnect();
                     return false;
                 }
             }
             catch (NpgsqlException ex)
             {
-                responses.Respond("Error while creating new User", "409 User already Exists");
+                string jsonResponse = "{\"message\": \"User with same username already registered.\"}";
+                responses.Respond(jsonResponse, "409 User already Exists");
                 Console.WriteLine($"Exception caught: {ex.Message}");
                 Disconnect();
                 return false;
@@ -111,7 +114,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return false;
             }
             try
@@ -129,14 +133,16 @@ namespace MTCG.DB
                 }
                 else
                 {
-                    responses.Respond("Error during Login", "500 Internal Server Error");
+                    string jsonResponse = "{\"message\": \"Invalid username/password provided.\"}";
+                    responses.Respond(jsonResponse, "401 Unauthorized");
                     Disconnect();
                     return false;
                 }
             }
             catch(NpgsqlException ex)
             {
-                responses.Respond("Login failed due to incorrect credentials.", "400 Bad Request");
+                string jsonResponse = "{\"message\": \"Login failed due to incorrect credentials.\"}";
+                responses.Respond(jsonResponse, "400 Bad Request");
                 Console.WriteLine($"Exception caught: {ex.Message}");
                 Disconnect();
                 return false;
@@ -148,7 +154,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return -1;
             }
             try
@@ -162,14 +169,16 @@ namespace MTCG.DB
                 }
                 else
                 {
-                    responses.Respond("Error during Package creation", "500 Internal Server Error");
+                    string jsonResponse = "{\"message\": \"Error during Package creation.\"}";
+                    responses.Respond(jsonResponse, "500 Internal Server Error");
                     Disconnect();
                     return -1;
                 }
             }
             catch (NpgsqlException ex)
             {
-                responses.Respond("Error during Package creation.", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Package creation.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 Console.WriteLine($"Exception caught: {ex.Message}");
                 Disconnect();
                 return -1;
@@ -181,7 +190,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return false;
             }
             using (var transaction = connect.BeginTransaction())
@@ -210,14 +220,16 @@ namespace MTCG.DB
                     }
                     else
                     {
-                        responses.Respond("Error during User creation", "500 Internal Server Error");
+                        string jsonResponse = "{\"message\": \"Error during User creation.\"}";
+                        responses.Respond(jsonResponse, "500 Internal Server Error");
                         Disconnect();
                         return false;
                     }
                 }
                 catch (NpgsqlException ex)
                 {
-                    responses.Respond("Error during Card creation.", "500 Internal Server Error");
+                    string jsonResponse = "{\"message\": \"Error during User creation.\"}";
+                    responses.Respond(jsonResponse, "500 Internal Server Error");
                     Console.WriteLine($"Exception caught: {ex.Message}");
                     Disconnect();
                     return false;
@@ -230,7 +242,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return 0;
             }
 
@@ -255,19 +268,17 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return;
             }
 
             var comms = new NpgsqlCommand("INSERT INTO \"stacks\" (username) VALUES (@username)", connect);
             comms.Parameters.AddWithValue("@username", username);
-
             comms.ExecuteNonQuery();
 
             Disconnect();
-
             return ;
-
 
         }
 
@@ -276,7 +287,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return 0;
             }
             var comms = new NpgsqlCommand("SELECT sid FROM stacks WHERE username = @username", connect);
@@ -290,18 +302,20 @@ namespace MTCG.DB
             }
             else
             {
-                responses.Respond("Error while getting Stack id", "400 Error");
+                string jsonResponse = "{\"message\": \"Error while getting stack id.\"}";
+                responses.Respond(jsonResponse, "400 Error");
                 Disconnect();
                 return 0;
             }
         }
 
-        public List<string> fillStack( int packageId)
+        public List<string> getCardsFromPackage( int packageId)
         {
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return null;
             }
             using (var transaction = connect.BeginTransaction())
@@ -326,7 +340,8 @@ namespace MTCG.DB
                 }
                 catch (Exception ex)
                 {
-                    responses.Respond("Error while filling Stack.", "400 Error");
+                    string jsonResponse = "{\"message\": \"Error while getting cards.\"}";
+                    responses.Respond(jsonResponse, "400 Error");
                     Console.WriteLine($"Exception caught: {ex.Message}");
                     Disconnect();
                     return null;
@@ -334,18 +349,19 @@ namespace MTCG.DB
             }
         }
 
-        public void addCards(string cardId, int stackId)
+        public void fillStack(string cardIds, int stackId)
         {
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
             }
             using (var transaction = connect.BeginTransaction())
             {
-                var comms = new NpgsqlCommand("Insert INTO stackCards (sid, cid) VALUES (@sid, @cid)", connect);
+                var comms = new NpgsqlCommand("Insert INTO stackCards (sid, cardId) VALUES (@sid, @cardId)", connect);
                 comms.Parameters.AddWithValue("@sid", stackId);
-                comms.Parameters.AddWithValue("@cid", cardId);
+                comms.Parameters.AddWithValue("@cardId", cardIds);
 
                 comms.ExecuteNonQuery();
                 transaction.Commit();
@@ -360,7 +376,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
             }
             var comms = new NpgsqlCommand("SELECT currency FROM users WHERE id = @id", connect);
             comms.Parameters.AddWithValue("@id", uid);
@@ -380,7 +397,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
             }
 
             var comms = new NpgsqlCommand("DELETE FROM packageCards WHERE pid = @pid", connect);
@@ -398,10 +416,172 @@ namespace MTCG.DB
             }
             else
             {
-                responses.Respond("Error during Package deletion", "400 Error");
+                string jsonResponse = "{\"message\": \"Error during Package deletion.\"}";
+                responses.Respond(jsonResponse, "400 Error");
                 Disconnect();
                 return;
             }
+        }
+
+        public List<Card> printStack(int stackId)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return null;
+            }
+
+            List<Card> cardList = new List<Card>();
+
+            using (var comms = new NpgsqlCommand("SELECT * FROM stackCards INNER JOIN cards ON cardId = cid WHERE sid = @sid", connect))
+            {
+                comms.Parameters.AddWithValue("@sid", stackId); 
+
+                using (var reader = comms.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string cardid = reader.GetString(reader.GetOrdinal("cid"));
+                        string name = reader.GetString(reader.GetOrdinal("name"));
+                        double dmg = reader.GetDouble(reader.GetOrdinal("damage"));
+                        string type = reader.GetString(reader.GetOrdinal("cardType"));
+                        string element = reader.GetString(reader.GetOrdinal("element"));
+
+                        cardList.Add(new Card(name, cardid, dmg, type, element));
+                    }
+
+                    return cardList;
+                }
+            }
+        }
+
+        public void createDeck(string username)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return;
+            }
+
+            var comms = new NpgsqlCommand("INSERT INTO \"decks\" (username_referenz) VALUES (@username_referenz)", connect);
+            comms.Parameters.AddWithValue("@username_referenz", username);
+            comms.ExecuteNonQuery();
+
+            Disconnect();
+            return;
+        }
+
+        public int getDeckId(string username)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return 0;
+            }
+
+            var comms = new NpgsqlCommand("SELECT did FROM decks WHERE username_referenz = @username_referenz", connect);
+            comms.Parameters.AddWithValue("@username_referenz", username);
+            var result = comms.ExecuteScalar();
+            if (result != null)
+            {
+                int did = Convert.ToInt32(result);
+                Disconnect();
+                return did;
+            }
+            else
+            {
+                string jsonResponse = "{\"message\": \"Errorwhile getting Deck id.\"}";
+                responses.Respond(jsonResponse, "400 Error");
+                Disconnect();
+                return 0;
+            }
+        }
+
+        public List<Card> printDeck(int deckId)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return null;
+            }
+
+            List<Card> cardList = new List<Card>();
+
+            using (var comms = new NpgsqlCommand("SELECT * FROM deckCards INNER JOIN cards ON cardId = cid WHERE did = @did", connect))
+            {
+                comms.Parameters.AddWithValue("@did", deckId);
+
+                using (var reader = comms.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string cardid = reader.GetString(reader.GetOrdinal("cid"));
+                        string name = reader.GetString(reader.GetOrdinal("name"));
+                        double dmg = reader.GetDouble(reader.GetOrdinal("damage"));
+                        string type = reader.GetString(reader.GetOrdinal("cardType"));
+                        string element = reader.GetString(reader.GetOrdinal("element"));
+
+                        cardList.Add(new Card(name, cardid, dmg, type, element));
+                    }
+                    Disconnect();
+                    return cardList;
+                }
+            }
+        }
+
+        public bool checkStack(int stackId, Card card)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return false;
+            }
+            var comms = new NpgsqlCommand("SELECT * FROM stackCards WHERE sid = @sid AND cardId = @cardId", connect);
+            comms.Parameters.AddWithValue("@sid", stackId);
+            comms.Parameters.AddWithValue("@cardId", card.cid);
+            int result = Convert.ToInt32(comms.ExecuteScalar());
+
+            if(result > 0) 
+            {
+
+                Disconnect();
+                return true;
+            }
+            else
+            {
+                Disconnect();
+                return false;
+            }
+        }
+
+        public void insertIntoDeck(int deckId, Card card)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return;
+            }
+
+            var comms = new NpgsqlCommand("INSERT INTO deckCards (did, cardId) VALUES (@did, @cardId)", connect);
+            comms.Parameters.AddWithValue("@cardId", card.cid);
+            comms.Parameters.AddWithValue("@did", deckId);
+
+            comms.ExecuteNonQuery();
+
+            Disconnect();
+            return;
         }
 
         public User getUserData(string token) 
@@ -409,7 +589,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return null;
             }
             var comms = new NpgsqlCommand("SELECT id, username, password, currency, elo FROM users WHERE token = @token", connect);
@@ -426,11 +607,14 @@ namespace MTCG.DB
                 int elo = reader.GetInt32(reader.GetOrdinal("elo"));
 
                 User user = new User(id, username, password, currency, elo);
+                Disconnect();
                 return user;
             }
             else
             {
-                responses.Respond("No User found", "404 Not Found");
+                string jsonResponse = "{\"message\": \"No User found.\"}";
+                responses.Respond(jsonResponse, "404 Not Found");
+                Disconnect();
                 return null;
             }
         }
@@ -441,7 +625,8 @@ namespace MTCG.DB
             Connect();
             if (!connected)
             {
-                responses.Respond("Error during Database communication", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 return false;
             }
             try
@@ -458,14 +643,16 @@ namespace MTCG.DB
                 }
                 else
                 {
-                    responses.Respond("Invalid Token", "401 Unauthorized");
+                    string jsonResponse = "{\"message\": \"Access token is missing or invalid.\"}";
+                    responses.Respond(jsonResponse, "401 Unauthorized");
                     Disconnect();
                     return false;
                 }
             }
             catch(NpgsqlException ex)
             {
-                responses.Respond("Error during Token validation.", "500 Internal Server Error");
+                string jsonResponse = "{\"message\": \"Access token is missing or invalid.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
                 Console.WriteLine($"Exception caught: {ex.Message}");
                 Disconnect();
                 return false;

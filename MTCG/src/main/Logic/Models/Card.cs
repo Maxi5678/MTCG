@@ -20,6 +20,11 @@ namespace Models
             
         }
 
+        public Card(string id)
+        {
+            this.cid = id;
+        }
+
         public Card(string id, String name, double dmg, String cardType, String element, int special)
         {
             this.cid = id;
