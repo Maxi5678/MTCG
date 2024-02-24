@@ -21,7 +21,7 @@ namespace MTCG.Server.RP
 
         public void Respond(string text, string code)
         {
-            var response = $"HTTP/1.1 {code}\r\nContent-Type: text/plain\r\nContent-Length: {Encoding.UTF8.GetByteCount(text)}\r\n\r\n{text}";
+            var response = $"HTTP/1.1 {code}\r\nContent-Type: application/json\r\nContent-Length: {Encoding.UTF8.GetByteCount(text)}\r\n\r\n{text}";
             byte[] responseBytes = Encoding.UTF8.GetBytes(response);
 
             clientSocket.Send(responseBytes);

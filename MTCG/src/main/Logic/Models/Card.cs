@@ -8,19 +8,19 @@ namespace Models
 {
     public class Card
     {
-        private int cid;
-        private string name;
-        private double damage;
-        private string cardType;
-        private string element;
-        private int special;
+        public string cid;
+        public string name;
+        public double damage;
+        public string cardType;
+        public string element;
+        public int special;
 
         public Card() 
         {
             
         }
 
-        public Card(int id, String name, double dmg, String cardType, String element, int special)
+        public Card(string id, String name, double dmg, String cardType, String element, int special)
         {
             this.cid = id;
             this.name = name;
@@ -30,25 +30,23 @@ namespace Models
             this.special = special;
         }
 
-        public Card(int id, String Name, double dmg, String cardType, String element)
+        public Card(string id, String name, double dmg, String cardType, String element)
         {
             this.cid = id;
             this.name = name;
             this.damage = dmg;
             this.cardType = cardType;
             this.element = element;
-            this.special = getSpecialFromName();
         }
 
 
-        public Card(int id, string Name, double dmg)
+        public Card(string id, string Name, double dmg)
         {
             this.cid = id;
             this.name = Name;
             this.damage = dmg;
             this.cardType = getTypeFromName();
             this.element = getElementFromName();
-            this.special = getSpecialFromName();
         }
 
         public string getTypeFromName()

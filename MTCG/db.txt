@@ -13,11 +13,12 @@ CREATE TABLE IF NOT EXISTS users(
 	username VARCHAR(50) UNIQUE NOT NULL,
 	password VARCHAR(255) NOT NULL, 
 	currency INT DEFAULT 20, 
-	elo INT DEFAULT 100 
+	elo INT DEFAULT 100, 
+    token varchar(50)
 );
 
 CREATE TABLE cards (
-    cid SERIAL PRIMARY KEY,
+    cid varchar(128) UNIQUE PRIMARY KEY,
     name VARCHAR(32) NOT NULL,
     damage DOUBLE PRECISION NOT NULL,
     cardType VARCHAR(255),
@@ -29,21 +30,22 @@ CREATE TABLE packages (
 );
 
 CREATE TABLE packageCards (
-    pid INT NOT NULL,
-    cid INT NOT NULL,
-    FOREIGN KEY (pid) REFERENCES packages(pid),
-    FOREIGN KEY (cid) REFERENCES cards(cid)
+    pid INT,
+    cid VARCHAR(128),
+    PRIMARY KEY(pid, cid),
+    FOREIGN KEY(pid) REFERENCES packages(pid),
+    FOREIGN KEY(cid) REFERENCES cards(cid)
 );
 
 CREATE TABLE stacks (
     sid SERIAL PRIMARY KEY,
-    uid INT NOT NULL,
-    FOREIGN KEY (uid) REFERENCES users(id)
+    username VARCHAR(50) NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username)
 );
 
 CREATE TABLE stackCards (
     sid INT NOT NULL,
-    cid INT NOT NULL,
+    cid varchar(128) NOT NULL,
     FOREIGN KEY (sid) REFERENCES stacks(sid),
     FOREIGN KEY (cid) REFERENCES cards(cid)
 );
@@ -56,17 +58,8 @@ CREATE TABLE deck (
 
 CREATE TABLE deckCards (
     did INT NOT NULL,
-    cid INT NOT NULL,
+    cid varchar(128) NOT NULL,
     FOREIGN KEY (did) REFERENCES deck(did),
-    FOREIGN KEY (cid) REFERENCES cards(cid)
-);
-
-CREATE TABLE UserCards (
-    Ucid SERIAL PRIMARY KEY,
-    uid INT NOT NULL,
-    cid INT NOT NULL,
-    in_deck BOOLEAN,
-    FOREIGN KEY (uid) REFERENCES users(id),
     FOREIGN KEY (cid) REFERENCES cards(cid)
 );
 

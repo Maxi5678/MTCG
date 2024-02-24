@@ -8,9 +8,10 @@ namespace Models
 {
     public class Package
     {
-        public Package() 
-        { 
-
+        int pid;
+        public Package(int packageid) 
+        {
+            this.pid = packageid;
         }
     }
 }
