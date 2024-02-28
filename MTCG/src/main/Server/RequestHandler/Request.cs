@@ -7,6 +7,8 @@ using MTCG.DB;
 using System.Xml;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json.Serialization;
+using MTCG.Server.Models;
 
 namespace MTCG.Server.RQ
 {
@@ -18,6 +20,9 @@ namespace MTCG.Server.RQ
         public StreamReader Reader;
         Response responses;
         dbCommunication dbCommunication;
+        public static Waiting waitingForBattle = new Waiting();
+
+
 
         public Request(Socket incomingSocket)
         {
@@ -97,7 +102,7 @@ namespace MTCG.Server.RQ
                         GetPackage();
                         break;
                     case "/battles":
-
+                        startBattle();
                         break;
                     default:
                         string jsonResponse = "{\"message\": \"Service not implemented.\"}";
@@ -145,13 +150,13 @@ namespace MTCG.Server.RQ
 
             if(Regex.IsMatch(path[1], @"/users/[a-zA-Z]*"))
             {
-                string jsonResponse = "{\"message\": \"Deleted Users.\"}";
-                responses.Respond(jsonResponse, "200 OK");
+                string jsonResponse = "{\"message\": \"Service not implemented.\"}";
+                responses.Respond(jsonResponse, "501 Not Implemented");
             }
             else if(Regex.IsMatch(path[1], @"/tradings/[a-zA-Z0-9-]*"))
             {
-                string jsonResponse = "{\"message\": \"Deleted Trading.\"}";
-                responses.Respond(jsonResponse, "200 OK");
+                string jsonResponse = "{\"message\": \"Service not implemented.\"}";
+                responses.Respond(jsonResponse, "501 Not Implemented");
             }
             else
             {
@@ -182,7 +187,8 @@ namespace MTCG.Server.RQ
                     
                     if (dbCommunication.InsertUser(createUser)) 
                     {
-                        responses.Respond($"Successfully added User: {username}\nWith password: {password}", "201 Created");
+                        string jsonResponse = $"{{\"message\": \"Successfully added User: {username}\nWith password: {password}\"}}\r\n";
+                        responses.Respond(jsonResponse, "201 Created");
                     }
                 }
                 else
@@ -339,8 +345,8 @@ namespace MTCG.Server.RQ
                 List<Card> cardList = dbCommunication.printStack(stackId);
                 if(cardList.Count == 0) 
                 {
-                    string jsonResponse = "{\"message\": \"The request was fine, but the user doesn't have any cards.\"}";
-                    responses.Respond(jsonResponse, "204 No Content ");
+                    string jsonResponse1 = "{\"message\": \"The request was fine, but the user doesn't have any cards.\"}";
+                    responses.Respond(jsonResponse1, "204 No Content ");
                     return;
                 }
                 StringBuilder jsonBuilder = new StringBuilder();
@@ -359,7 +365,10 @@ namespace MTCG.Server.RQ
                 }
                 jsonBuilder.Append("]\r\n");
 
-                responses.Respond($"The User: {user.username} has following Cards:"+jsonBuilder.ToString(), "200 Success");
+                string response = jsonBuilder.ToString();
+
+                string jsonResponse = $"{{\"message\": \"The User: {user.username} has following Cards in his Deck:\" + {response}\"}}\r\n";
+                responses.Respond(jsonResponse, "200 Success");
             }
             else
             {
@@ -387,30 +396,36 @@ namespace MTCG.Server.RQ
 
             if(deckId > 0)
             {
-                List<Card> cardList = dbCommunication.printDeck(deckId);
-                if (cardList.Count == 0)
+                var userDeck = dbCommunication.printDeck(deckId);
+                if (userDeck.isEmpty())
                 {
-                    string jsonResponse = "{\"message\": \"The request was fine, but the deck doesn't have any cards.\"}";
-                    responses.Respond(jsonResponse, "204 No Content ");
+                    string jsonResponse1 = "{\"message\": \"The request was fine, but the deck doesn't have any cards.\"}";
+                    responses.Respond(jsonResponse1, "204 No Content ");
                     return;
                 }
+
+
+                var cards = userDeck.getAllCards();
                 StringBuilder jsonBuilder = new StringBuilder();
 
                 jsonBuilder.Append("\r\n[");
-                for (int i = 0; i < cardList.Count; i++)
+                for (int i = 0; i < cards.Count; i++)
                 {
-                    var card = cardList[i];
+                    var card = cards[i];
                     jsonBuilder.Append("{");
                     jsonBuilder.AppendFormat("\"CardId\": \"{0}\", \"Name\": \"{1}\", \"Damage\": {2}, \"Type\": \"{3}\", \"Element\": \"{4}\"", card.cid, card.name, card.damage, card.cardType, card.element);
                     jsonBuilder.Append("}");
-                    if (i < cardList.Count - 1)
+                    if (i < cards.Count - 1)
                     {
                         jsonBuilder.Append(",\r\n ");
                     }
                 }
                 jsonBuilder.Append("]\r\n");
 
-                responses.Respond($"The User: {user.username} has following Cards in his Deck:" + jsonBuilder.ToString(), "200 Success");
+                string response = jsonBuilder.ToString();
+
+                string jsonResponse = $"{{\"message\": \"The User: {user.username} has following Cards in his Deck:\" + {response}\"}}\r\n";
+                responses.Respond(jsonResponse, "200 Success");
             }
             else
             {
@@ -465,6 +480,75 @@ namespace MTCG.Server.RQ
             {
                 string jsonResponse = "{\"message\": \"The provided deck did not include the required amount of cards.\"}";
                 responses.Respond(jsonResponse, "400 Error");
+            }
+        }
+
+        private void startBattle()
+        {
+            var requestLines = requestText.Split("\r\n");
+            var path = requestLines.Skip(4).FirstOrDefault()?.Split(' ') ?? Array.Empty<string>();
+            if (path.Length == 1)
+            {
+                string jsonResponse = "{\"message\": \"Access token is missing or invalid.\"}";
+                responses.Respond(jsonResponse, "401 Unauthorized");
+                return;
+            }
+            else if (!dbCommunication.validateUser(path[2]))
+            {
+                return;
+            }
+
+            User currentUser = dbCommunication.getUserData(path[2]);
+            User playerA, playerB;
+            if (!waitingForBattle.isUserWaiting())
+            {
+                lock(waitingForBattle){
+                    try
+                    {
+                        waitingForBattle.updateWaitingStatus(true);
+                        playerA = currentUser;
+                        waitingForBattle.assignWaitingUser(playerA);
+
+                        while (waitingForBattle.getCurrentWaitingUser() != null)
+                        {
+                            System.Threading.Monitor.Wait(waitingForBattle);
+                        }
+
+                        var outcome = waitingForBattle.getCurrentBattle().Outcome();
+                        string jsonResponse = $"{{\"message\": \"Successfully Battled. BattleLog/result: {outcome}\"}}\r\n";
+                        responses.Respond(jsonResponse, "200 Success");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Error.WriteLine("Error while finding a battle: " + e.Message);
+                    }
+                }
+            }
+            else
+            {
+                lock (waitingForBattle)
+                {
+                    try
+                    {
+                        waitingForBattle.updateWaitingStatus(false);
+                        playerB = currentUser;
+
+                        waitingForBattle.initializeBattle(new Battle(waitingForBattle.getCurrentWaitingUser(), playerB, dbCommunication));
+                        waitingForBattle.getCurrentBattle().start();
+
+                        waitingForBattle.assignWaitingUser(null);
+                        System.Threading.Monitor.Pulse(waitingForBattle);
+
+                        var outcome = waitingForBattle.getCurrentBattle().Outcome();
+                        string jsonResponse = $"{{\"message\": \"Entered Battled. BattleLog/result: {outcome}\"}}\r\n";
+                        responses.Respond(jsonResponse, "200 Success");
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Error.WriteLine("Error while starting a battle: " + e.Message);
+                    }
+                }
             }
         }
 

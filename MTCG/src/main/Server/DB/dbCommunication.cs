@@ -7,13 +7,14 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 
 namespace MTCG.DB
 {
-    internal class dbCommunication
+    public class dbCommunication
     {
         private static readonly string connectionString = "Host=localhost;Username=admin;Password=1234;Database=mtcgdb";
         private NpgsqlConnection connect;
@@ -503,7 +504,7 @@ namespace MTCG.DB
             }
         }
 
-        public List<Card> printDeck(int deckId)
+        public Deck printDeck(int deckId)
         {
             Connect();
             if (!connected)
@@ -513,7 +514,7 @@ namespace MTCG.DB
                 return null;
             }
 
-            List<Card> cardList = new List<Card>();
+            Deck deck = new Deck(new List<Card>());
 
             using (var comms = new NpgsqlCommand("SELECT * FROM deckCards INNER JOIN cards ON cardId = cid WHERE did = @did", connect))
             {
@@ -529,10 +530,10 @@ namespace MTCG.DB
                         string type = reader.GetString(reader.GetOrdinal("cardType"));
                         string element = reader.GetString(reader.GetOrdinal("element"));
 
-                        cardList.Add(new Card(name, cardid, dmg, type, element));
+                        deck.addCard(new Card(name, cardid, dmg, type, element));
                     }
                     Disconnect();
-                    return cardList;
+                    return deck;
                 }
             }
         }
@@ -617,6 +618,41 @@ namespace MTCG.DB
                 Disconnect();
                 return null;
             }
+        }
+
+        public void changeElo(int winner, int looser)
+        {
+            Connect();
+            if (!connected)
+            {
+                string jsonResponse = "{\"message\": \"Error during Database communication.\"}";
+                responses.Respond(jsonResponse, "500 Internal Server Error");
+                return;
+            }
+            var comms = new NpgsqlCommand("SELECT elo FROM users WHERE id = @id", connect);
+            comms.Parameters.AddWithValue("@id", winner);
+
+            var currentEloW = (int)comms.ExecuteScalar();
+
+            currentEloW += 3;
+
+            var command = new NpgsqlCommand("UPDATE users SET elo = @elo WHERE id = @id", connect);
+            command.Parameters.AddWithValue("@elo", currentEloW);
+            command.Parameters.AddWithValue("@id", winner);
+            command.ExecuteNonQuery();
+
+            var commands = new NpgsqlCommand("SELECT elo FROM users WHERE id = @id", connect);
+            commands.Parameters.AddWithValue("@id", looser);
+
+            var currentEloL = (int)commands.ExecuteScalar();
+
+            Console.WriteLine(currentEloL);
+            currentEloL -= 5;
+
+            var comman = new NpgsqlCommand("UPDATE users SET elo = @elo WHERE id = @id", connect);
+            comman.Parameters.AddWithValue("@elo", currentEloL);
+            comman.Parameters.AddWithValue("@id", looser);
+            comman.ExecuteNonQuery();
         }
 
 

@@ -14,6 +14,7 @@ namespace Models
         public string cardType;
         public string element;
         public int special;
+        private static Random random = new Random();
 
         public Card() 
         {
@@ -80,43 +81,91 @@ namespace Models
             return element;
         }
 
-        public int getSpecialFromName()
+        public int battle(Card opposingCard)
         {
-            int special = 0;
-            string copyName = name.ToLower();
-            if (copyName.Contains("spell"))
+            double cardDamage, opposingCardDamage;
+
+            cardDamage = this.damage * calculateEffectiveness(opposingCard.cardType, opposingCard.element);
+            opposingCardDamage = opposingCard.damage * calculateEffectiveness(this.cardType, this.element);
+
+            if(cardDamage > opposingCardDamage) 
             {
-                if (copyName.Contains("water"))
+                return 1;
+            }
+            else if(cardDamage < opposingCardDamage)
+            {
+                return -1;
+            }
+            else 
+            { 
+                return 0; 
+            }
+        }
+
+        public double calculateEffectiveness(string opposingCardType, string opposingCardElement)
+        {
+
+            bool isUnlucky = random.Next(200) == 0;
+            bool isLucky = random.Next(200) == 0;
+
+            if (isUnlucky)
+            {
+                return 0; 
+            }
+            else if (isLucky)
+            {
+                return 10;
+            }
+            else if (this.cardType == "monster" && opposingCardType == "monster")
+            {
+                return 1;
+            }
+            else
+            {
+                if (this.element == "water" && opposingCardElement == "fire")
                 {
-                    special = 2;
+                    return 2;
                 }
-                special = 1;
+                else if (this.element == "water" && opposingCardElement == "normal")
+                {
+                    return 0.5;
+                }
+                else if (this.element == "fire" && opposingCardElement == "normal")
+                {
+                    return 2;
+                }
+                else if (this.element == "fire" && opposingCardElement == "water")
+                {
+                    return 0.5;
+                }
+                else if (this.element == "normal" && opposingCardElement == "water")
+                {
+                    return 2;
+                }
+                else if (this.element == "normal" && opposingCardElement == "fire")
+                {
+                    return 0.5;
+                }
+                else
+                {
+                    return 1;
+                }
             }
-            else if (copyName.Contains("knight"))
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != this.GetType())
             {
-                special = 3;
+                return false;
             }
-            else if (copyName.Contains("dragon"))
-            {
-                special = 4;
-            }
-            else if (copyName.Contains("fireelf"))
-            {
-                special = 5;
-            }
-            else if (copyName.Contains("kraken"))
-            {
-                special = 6;
-            }
-            else if (copyName.Contains("wizzard"))
-            {
-                special = 7;
-            }
-            else if (copyName.Contains("ork"))
-            {
-                special = 8;
-            }
-            return special;
+
+            Card other = (Card)obj;
+            return this.cid == other.cid;
+        }
+
+        public override int GetHashCode()
+        {
+            return cid.GetHashCode();
         }
     }
 

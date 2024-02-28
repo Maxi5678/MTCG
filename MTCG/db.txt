@@ -63,20 +63,4 @@ CREATE TABLE deckCards (
     FOREIGN KEY (cardId) REFERENCES cards(cid)
 );
 
-CREATE TABLE Battle (
-    BattleID SERIAL PRIMARY KEY,
-    ChallengerUserID INTEGER NOT NULL,
-    OpponentUserID INTEGER NOT NULL,
-    WinnerUserID INTEGER NULL,
-    CONSTRAINT fk_challenger
-        FOREIGN KEY (ChallengerUserID)
-        REFERENCES users(id),
-    CONSTRAINT fk_opponent
-        FOREIGN KEY (OpponentUserID)
-        REFERENCES users(id),
-    CONSTRAINT fk_winner
-        FOREIGN KEY (WinnerUserID)
-        REFERENCES users(id)
-);
-
 DELETE FROM packageCards; DELETE FROM packages; DELETE FROM deckCards; DELETE FROM decks; DELETE FROM stackCards; DELETE FROM stacks; DELETE FROM users; DELETE FROM cards;
