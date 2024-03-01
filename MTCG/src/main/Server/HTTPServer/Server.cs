@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using MTCG.Server.RH;
-
 
 namespace MTCG.Server
 {
@@ -14,7 +10,6 @@ namespace MTCG.Server
 
         public HTTPServer()
         {
-
         }
 
         public HTTPServer(int port)
@@ -40,7 +35,6 @@ namespace MTCG.Server
                         Console.WriteLine("Client connected: " + clientSocket.RemoteEndPoint);
                         RequestHandler requestHandler = new RequestHandler(clientSocket);
 
-                        // Handle client in a separate thread
                         Thread clientThread = new Thread(() => requestHandler.Handle(clientSocket));
                         clientThread.Start();
                     }
@@ -61,5 +55,3 @@ namespace MTCG.Server
         }
     }
 }
-
-

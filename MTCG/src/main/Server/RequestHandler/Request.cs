@@ -4,10 +4,7 @@ using System.Text.RegularExpressions;
 using System.Text.Json;
 using Models;
 using MTCG.DB;
-using System.Xml;
-using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json.Serialization;
 using MTCG.Server.Models;
 
 namespace MTCG.Server.RQ

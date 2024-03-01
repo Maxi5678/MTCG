@@ -1,22 +1,16 @@
-﻿using Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MTCG.DB;
-using System.Numerics;
+﻿using MTCG.DB;
+
 
 namespace Models
 {
     public class Battle
     {
-        private User playerA, playerB;
-        private int roundsCompleted = 0;
-        private string matchLog = "";
-        private User winner = null;
+        public User playerA, playerB;
+        public int roundsCompleted = 0;
+        public string matchLog = "";
+        public User winner = null;
         dbCommunication dbCommunication;
-        private Deck deckA, deckB;
+        public Deck deckA, deckB;
 
         public Battle(User playerA, User playerB, dbCommunication dbComm)
         {
@@ -61,8 +55,34 @@ namespace Models
             matchLog += $"\nRound {roundsCompleted + 1}\n {playerA.username} plays: {cardA.name}";
             matchLog += $"\n {playerB.username} plays: {cardB.name}";
 
-            matchLog += $"\n{cardA.name} deals {cardA.damage * cardA.calculateEffectiveness(cardB.cardType, cardB.element)} damage.";
-            matchLog += $"\n{cardB.name} deals {cardB.damage * cardB.calculateEffectiveness(cardA.cardType, cardB.element)} damage.";
+            double cardAcalculatedDamage = cardA.calculateEffectiveness(cardB.cardType, cardB.element);
+            double cardBcalculatedDamage = cardB.calculateEffectiveness(cardA.cardType, cardB.element);
+
+            if (cardAcalculatedDamage == 0)
+            {
+                matchLog += $"\n{cardA.name} deals {cardA.damage * cardAcalculatedDamage} damage, because the User was cursed by Saruman.";
+                matchLog += $"\n{cardB.name} deals {cardB.damage * cardBcalculatedDamage} damage.";
+            }
+            else if (cardBcalculatedDamage == 0)
+            {
+                matchLog += $"\n{cardA.name} deals {cardA.damage * cardAcalculatedDamage} damage.";
+                matchLog += $"\n{cardB.name} deals {cardB.damage * cardBcalculatedDamage} damage, because the User was cursed by Saruman.";
+            }
+            else if (cardAcalculatedDamage == 10)
+            {
+                matchLog += $"\n{cardA.name} deals {cardA.damage * cardAcalculatedDamage} damage, because the User was blessed by Gandalf.";
+                matchLog += $"\n{cardB.name} deals {cardB.damage * cardBcalculatedDamage} damage.";
+            }
+            else if (cardBcalculatedDamage == 10)
+            {
+                matchLog += $"\n{cardA.name} deals {cardA.damage * cardAcalculatedDamage} damage.";
+                matchLog += $"\n{cardB.name} deals {cardB.damage * cardBcalculatedDamage} damage, because the User was blessed by Gandalf.";
+            }
+            else
+            {
+                matchLog += $"\n{cardA.name} deals {cardA.damage * cardAcalculatedDamage} damage.";
+                matchLog += $"\n{cardB.name} deals {cardB.damage * cardBcalculatedDamage} damage.";
+            }
 
             var result = cardA.battle(cardB);
             switch (result)

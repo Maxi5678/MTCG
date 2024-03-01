@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Models
 {
@@ -13,8 +9,12 @@ namespace Models
         public double damage;
         public string cardType;
         public string element;
-        public int special;
         private static Random random = new Random();
+        private readonly Random randome;
+        bool test = false;
+        bool gandalf = false;
+        bool blessedByGandalf = false;
+        bool cursedBySaruman = false;
 
         public Card() 
         {
@@ -24,16 +24,6 @@ namespace Models
         public Card(string id)
         {
             this.cid = id;
-        }
-
-        public Card(string id, String name, double dmg, String cardType, String element, int special)
-        {
-            this.cid = id;
-            this.name = name;
-            this.damage = dmg;
-            this.cardType = cardType;
-            this.element = element;
-            this.special = special;
         }
 
         public Card(string id, String name, double dmg, String cardType, String element)
@@ -54,6 +44,20 @@ namespace Models
             this.cardType = getTypeFromName();
             this.element = getElementFromName();
         }
+
+        public Card(string id, string name, double dmg, string cardType, string element, Random random = null, bool gandalf = false)
+        {
+            this.cid = id;
+            this.name = name;
+            this.damage = dmg;
+            this.cardType = cardType;
+            this.element = element;
+            this.randome = random ?? new Random();
+            test = true;
+            this.gandalf = gandalf;
+        }
+
+
 
         public string getTypeFromName()
         {
@@ -104,17 +108,30 @@ namespace Models
 
         public double calculateEffectiveness(string opposingCardType, string opposingCardElement)
         {
-
-            bool isUnlucky = random.Next(200) == 0;
-            bool isLucky = random.Next(200) == 0;
-
-            if (isUnlucky)
+            if (test)
             {
-                return 0; 
+                if (gandalf)
+                {
+                    blessedByGandalf = randome.Next(200) == 0;
+                }
+                else
+                {
+                    cursedBySaruman = randome.Next(200) == 0;
+                }
             }
-            else if (isLucky)
+            else
             {
-                return 10;
+                cursedBySaruman = random.Next(200) == 0;
+                blessedByGandalf = random.Next(200) == 0;
+            }
+
+            if (blessedByGandalf)
+            {
+                return 10; 
+            }
+            else if (cursedBySaruman)
+            {
+                return 0;
             }
             else if (this.cardType == "monster" && opposingCardType == "monster")
             {

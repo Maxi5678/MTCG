@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
 using MTCG.Server.RQ;
 using MTCG.Server.RP;
-using System.Reflection.PortableExecutable;
 
 namespace MTCG.Server.RH
 {
@@ -33,8 +29,6 @@ namespace MTCG.Server.RH
 
             string? incomingRequest;
             StringBuilder requestBuilder = new StringBuilder();
-
-            
 
             while ((incomingRequest = Reader.ReadLine()) != null)
             {
@@ -65,7 +59,7 @@ namespace MTCG.Server.RH
             }
             else
             {
-                responses.Respond("Wrong Command.", "404 Not found.");
+                responses.Respond("Falscher Befehl.", "404 Nicht gefunden.");
             }
 
             incomingSocket.Shutdown(SocketShutdown.Both);
@@ -74,5 +68,4 @@ namespace MTCG.Server.RH
             Console.WriteLine("Client disconnected");
         }
     }
-
 }
