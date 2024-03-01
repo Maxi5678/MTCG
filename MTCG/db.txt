@@ -63,4 +63,8 @@ CREATE TABLE deckCards (
     FOREIGN KEY (cardId) REFERENCES cards(cid)
 );
 
+
+
+Um alle Tables der DB zu leeren:
+
 DELETE FROM packageCards; DELETE FROM packages; DELETE FROM deckCards; DELETE FROM decks; DELETE FROM stackCards; DELETE FROM stacks; DELETE FROM users; DELETE FROM cards;
