@@ -28,8 +28,8 @@ namespace Tests
 
             ClassicAssert.AreEqual("testUser", user.username);
             ClassicAssert.AreEqual("testPassword", user.password);
-            ClassicAssert.AreEqual(20, user.currency); // Überprüfen des Standardwerts für currency
-            ClassicAssert.AreEqual(100, user.elo); // Überprüfen des Standardwerts für elo
+            ClassicAssert.AreEqual(20, user.currency); 
+            ClassicAssert.AreEqual(100, user.elo); 
         }
 
     }

@@ -1,0 +1,60 @@
+Design:
+Der MTCG-Server, ausgestattet mit einer Postgres-Datenbankanbindung, ist darauf ausgelegt, HTTP-Anfragen zu verarbeiten. Er wird initial auf dem Port 10001 aktiviert und leitet für jede Client-Anbindung einen separaten Thread ein, was ihm Multithreading-Fähigkeiten verleiht. Sobald eine Verbindung zu einem Client hergestellt ist, wird dessen Anfrage eingehend untersucht. Je nach Anfragetyp wird eine spezifische Handler-Klasse zugeordnet (z.B. GetRequestHandler für GET-Anfragen, PostRequestHandler für POST-Anfragen usw.), die die Route prüft und die Anfrage entsprechend verarbeitet. Der Client erhält daraufhin eine Rückmeldung, welche im JSON-Format erfolgt. Im Unterschied zu einem dauerhaft bestehenden Datenbankzugang wird hier die Verbindung zur Datenbank nur bei Bedarf, sprich bei Aufruf einer Methode aus den Datenbankhandler-Klassen, aufgebaut und nach Abschluss der Methode wieder abgebaut. 
+Ergänzend zum grundlegenden Server-Setup beinhaltet das System eine spezialisierte Battle-Logik, die es Spielern ermöglicht, gegeneinander anzutreten. Sobald ein Spieler eine Kampfanfrage startet, überprüft der Server die Gültigkeit des Zugangstokens und ob der Spieler existiert. Ein Spieler, der auf einen Kampf wartet, wird in eine Warteschlange eingereiht, während der Server nach einem Gegenspieler sucht. Bei einem gefundenen Match startet der Kampf automatisch.
+Die Battle-Klasse handhabt die Kampflogik, einschließlich der Initialisierung mit zwei Spielern und deren Decks aus der Datenbank. Während des Kampfes werden Runden ausgeführt, in denen zufällig ausgewählte Karten gegeneinander antreten, basierend auf spezifischen Regeln, die Effektivität und Elemente der Karten berücksichtigen. Besondere Ereignisse wie Flüche oder Segen können die Schadensberechnung beeinflussen. Das Kampfergebnis wird durch das Entfernen oder Hinzufügen von Karten zu den Decks der Spieler und eine aktualisierte ELO-Bewertung für den Gewinner entschieden. Der Kampf endet, wenn ein Spieler keine Karten mehr hat oder die maximale Rundenzahl erreicht ist, und das Ergebnis wird dem Client als Teil der Antwort mitgeteilt.
+
+Lessons learned:
+- Das schreiben von Unittests
+- Das arbeiten mt Curl-Skripts
+- Die Verwendung von TcpListener zum kreieren eines Servers
+
+Unit testing decision:
+
+Die Unitests sind vorallem dazu da, dass alle Funktionen der Klassen User, Deck und Card und die Klassen selber alle richtig funktionieren und initialisiert werden.
+
+1 public void Constructor_WithAllParameters_SetsPropertiesCorrectly()
+2 public void Constructor_WithUsernameAndPassword_SetsDefaultValues()
+3 public void AddCard_ShouldIncreaseDeckSizeByOne()
+4 public void RemoveCard_ShouldDecreaseDeckSizeByOne_IfExists()
+5 public void IsEmpty_ShouldReturnTrue_IfDeckIsEmpty()
+6 public void IsEmpty_ShouldReturnFalse_IfDeckIsNotEmpty()
+7 public void Size_ShouldReturnCorrectNumberOfCards_InDeck()
+8 public void GetCard_ShouldReturnCorrectCard_ByIndex()
+9 public void GetCard_ShouldThrowArgumentOutOfRangeException_IfIndexIsInvalid()
+10 public void GetAllCards_ShouldReturnAllCards_InDeck()
+11 public void Constructor_WithAllParameters_SetsAllPropertiesCorrectly()
+12 public void GetTypeFromName_WithNameContainingSpell_ReturnsSpell()
+13 public void GetElementFromName_WithNameContainingFire_ReturnsFire()
+14 public void Equals_WithTwoIdenticalCardIds_ReturnsTrue()
+15 public void Equals_WithDifferentCardIds_ReturnsFalse()
+16 public void CalculateEffectiveness_WaterVsFire_ReturnsDoubleEffectiveness()
+17 public void CalculateEffectiveness_FireVsWater_ReturnsHalfEffectiveness()
+18 public void CalculateEffectiveness_FireVsNormal_ReturnsDoubleEffectiveness()
+19 public void CalculateEffectiveness_NormalVsFire_ReturnsHalfEffectiveness()
+20 public void CalculateEffectiveness_NormalVsWater_ReturnsDoubleEffectiveness()
+21 public void CalculateEffectiveness_WaterVsNormal_ReturnsHalfEffectiveness()
+22 public void CalculateEffectiveness_MonsterVsMonster_ReturnsNormalEffectiveness()
+23 public void CalculateEffectiveness_BlessedByGandalf_ReturnsTenTimesEffectiveness()
+24 public void CalculateEffectiveness_CursedBySaruman_ReturnsZeroEffectiveness()
+
+
+Unique feature:
+
+Mein Unique Feature ist, dass es eine 1 zu 200 Chance gibt um entweder von Gandalf "geblessed" oder von Saruman "gecursed" werden kann. Wenn man von Gandalf "geblessed" wird macht man, egal was für ein cardType und Element man selber und die Gegnerische Karte hat, 10fachen Damage. Wenn man wiederum von Saruman "gecursed" wird macht man, egal was für ein cardType und Element man selber und die Gegnerische Karte hat, 0 Damage.
+
+
+Tracked time:
+
+Habe im Herbst schon einmal angefangen(Habe leider keine tracked time dazu mehr gefunden). Habe mich dann aber dazu entschieden nochmal komplett von neu anzufangen.
+
+27 Jänner - 28 Jänner -> Projekt neu aufgesetzt
+28 Jänner - 14 Februar -> Server Logik
+15 Februar - 19 Februar -> erweiterte Server Logik
+20 Februar - 24 Februar -> DB Verbindung und Befehle
+25 Februar - 28 Februar -> Battlelogic 
+29 Februar - 1 März -> Unit-Tests und Protokoll
+
+
+Git link:
+
+https://github.com/Maxi5678/MTCG
